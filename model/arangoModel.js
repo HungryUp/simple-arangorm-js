@@ -49,7 +49,11 @@ module.exports = function arangoModel(schemaHandler, options) {
         });
       }
       this._data = data;
-      this._documentHandle = null;
+      this.addToDocumentHandle(data);
+    }
+
+    static skeleton(data) {
+      return new this(data);
     }
 
     /**
@@ -92,7 +96,8 @@ module.exports = function arangoModel(schemaHandler, options) {
      * @returns {GenericModel}
      */
     merge(data) {
-      merge(this._data, data);
+      this._data = merge(this._data, data);
+      this.addToDocumentHandle(data);
       return this;
     }
 
@@ -136,6 +141,10 @@ module.exports = function arangoModel(schemaHandler, options) {
         return null;
       }
       return `${options.name}/${this.key}`;
+    }
+
+    static get collectionName() {
+      return options.name;
     }
   };
   return GenericModel;

@@ -41,6 +41,40 @@ module.exports = function arangoEdgeModel(schemaHandler, options) {
       return this;
     }
 
+    static async findLinkedDocuments(from, TypeToDiscover/* , { offset, limit } */) {
+      const traversal = await ArangoEdgeModel.collection.traversal(from.id, {
+        direction: 'outbound',
+        startVertex: from.id,
+        filter: `if (vertex._id === "${from.id}" || !vertex._id.startsWith("${TypeToDiscover.collectionName}/")) {
+        return "exclude";
+        }
+        return;`,
+        edgeCollection: options.name,
+        maxDepth: 1,
+      });
+      return traversal.visited.vertices.map(v => new TypeToDiscover(v));
+    }
+
+    static async findLinkedDocument(from, documentToDiscover) {
+      const traversal = await ArangoEdgeModel.collection.traversal(from.id, {
+        direction: 'outbound',
+        startVertex: from.id,
+        filter: `if (vertex._id !== "${documentToDiscover.id}") {
+        return "exclude";
+        }
+        return;`,
+        edgeCollection: options.name,
+        maxDepth: 1,
+      });
+      try {
+        const vertice = traversal.visited.vertices[0];
+        documentToDiscover.merge(vertice);
+        return documentToDiscover;
+      } catch (e) {
+        return null;
+      }
+    }
+
     static async createUniqueLink(from, to, data) {
       const o = new ArangoEdgeModel(data);
       return o.link(from, to, { unique: true });
