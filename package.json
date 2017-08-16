@@ -18,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/HungryUp/simple-arangorm-js/issues"
   },
-  "homepage": "https://github.com/HungryUp/simple-arangorm-js#readme"
+  "homepage": "https://github.com/HungryUp/simple-arangorm-js#readme",
+  "dependencies": {
+    "joi": "^10.6.0",
+    "lodash.merge": "^4.6.0"
+  }
 }
