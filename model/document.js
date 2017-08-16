@@ -34,7 +34,9 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
     static async find(example, { offset, limit }) {
       offset = offset || 0;
       limit = limit || 100;
-      return (await ArangoDocumentModel.collection.byExample(example, { skip: offset, limit })).all();
+      const query = await ArangoDocumentModel.collection.byExample(example, { skip: offset, limit });
+      const array = await query.all();
+      return array.map(o => new this(o));
     }
 
     /**
