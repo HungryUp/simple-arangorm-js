@@ -9,7 +9,7 @@ const { db } = require('..');
  * @param options
  * @returns {ArangoModel}
  */
-module.exports = function (schemaHandler, options) {
+module.exports = function arangoDocumentModel(schemaHandler, options) {
   const GenericModel = genericModel.call(this, schemaHandler, options);
   options = Object.assign(
     {

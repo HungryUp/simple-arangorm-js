@@ -10,7 +10,7 @@ const merge = require('lodash.merge');
  * @param options
  * @returns {GenericModel}
  */
-module.exports = function (schemaHandler, options) {
+module.exports = function arangoModel(schemaHandler, options) {
   options = Object.assign(
     {
       name: 'generic',
