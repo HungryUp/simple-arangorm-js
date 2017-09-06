@@ -21,7 +21,7 @@ module.exports = function arangoModel(schemaHandler, options) {
   const schema = schemaHandler({ Joi }, options);
   const schemaKeys = Object.keys(schema);
   const GenericModel = class GenericModel {
-    constructor(data) {
+    constructor(data = {}) {
       for (const key of schemaKeys) {
         Object.defineProperty(this, key, {
           enumerable: true,
