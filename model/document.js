@@ -36,7 +36,7 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
       limit = limit || 100;
       const query = await ArangoDocumentModel.collection.byExample(example, { skip: offset, limit });
       const array = await query.all();
-      return array.map(o => new this(o));
+      return array.map(o => new this(o, { isNew: false }));
     }
 
     /**
@@ -47,7 +47,7 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
      */
     static async findOne(example) {
       const data = await ArangoDocumentModel.collection.firstExample(example);
-      const object = new ArangoDocumentModel(data);
+      const object = new ArangoDocumentModel(data, { isNew: false });
       object.revision = data._rev;
       object.key = data._key;
       return object;
@@ -76,17 +76,23 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
      */
     async save(saveOptions = {}) {
       saveOptions = Object.assign({ returnNew: true }, saveOptions);
+
+      await this.emit('save.before.validating_data', this);
+      const validatedData = this._validatedData;
+      await this.emit('save.after.validating_data', this);
+
       await this.emit('save.before', this);
       let result;
       if (this.key) {
-        result = await ArangoDocumentModel.collection.update(this._documentHandle, this._validatedData, saveOptions);
+        result = await ArangoDocumentModel.collection.update(this._documentHandle, validatedData, saveOptions);
       } else {
         result = await ArangoDocumentModel
           .collection
-          .save(this._validatedData, saveOptions);
+          .save(validatedData, saveOptions);
       }
 
       if (result.new) {
+        await this.emit('save.before.merge', result.new);
         this.merge(result.new);
       }
       this.key = result._key;

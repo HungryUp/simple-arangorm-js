@@ -21,7 +21,10 @@ module.exports = function arangoModel(schemaHandler, options) {
   const schema = schemaHandler({ Joi }, options);
   const schemaKeys = Object.keys(schema);
   const GenericModel = class GenericModel {
-    constructor(data = {}) {
+    constructor(data = {}, { isNew = true } = {}) {
+      if (this.setupObject) {
+        this.setupObject();
+      }
       for (const key of schemaKeys) {
         Object.defineProperty(this, key, {
           enumerable: true,
@@ -48,8 +51,7 @@ module.exports = function arangoModel(schemaHandler, options) {
           },
         });
       }
-      this._data = data;
-      this.addToDocumentHandle(data);
+      this.merge(data, isNew);
     }
 
     static skeleton(data) {
@@ -95,7 +97,10 @@ module.exports = function arangoModel(schemaHandler, options) {
      * @param data
      * @returns {GenericModel}
      */
-    merge(data) {
+    merge(data, trigger = true) {
+      if (trigger) {
+        this.emit('merging', this._data, data);
+      }
       this._data = merge(this._data, data);
       this.addToDocumentHandle(data);
       return this;
@@ -147,14 +152,17 @@ module.exports = function arangoModel(schemaHandler, options) {
       return options.name;
     }
 
-    on(name, callback) {
+    on(names, callback) {
+      names = [].concat(names);
       if (!this.listeners) {
         this.listeners = {};
       }
-      if (!this.listeners[name]) {
-        this.listeners[name] = [];
+      for (const name of names) {
+        if (!this.listeners[name]) {
+          this.listeners[name] = [];
+        }
+        this.listeners[name].push(callback);
       }
-      this.listeners[name].push(callback);
     }
 
     async emit(name, ...params) {
