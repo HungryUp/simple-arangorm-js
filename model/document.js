@@ -76,7 +76,7 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
      */
     async save(saveOptions = {}) {
       saveOptions = Object.assign({ returnNew: true }, saveOptions);
-
+      await this.emit('save.before', this);
       let result;
       if (this.key) {
         result = await ArangoDocumentModel.collection.update(this._documentHandle, this._validatedData, saveOptions);

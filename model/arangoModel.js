@@ -146,6 +146,23 @@ module.exports = function arangoModel(schemaHandler, options) {
     static get collectionName() {
       return options.name;
     }
+
+    on(name, callback) {
+      if (!this.listeners) {
+        this.listeners = {};
+      }
+      if (!this.listeners[name]) {
+        this.listeners[name] = [];
+      }
+      this.listeners[name].push(callback);
+    }
+
+    async emit(name, ...params) {
+      if (!this.listeners || !this.listeners[name]) {
+        return [];
+      }
+      return Promise.all(this.listeners[name].map(listener => listener.call(this, ...params)));
+    }
   };
   return GenericModel;
 };
