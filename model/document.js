@@ -47,7 +47,7 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
      */
     static async findOne(example) {
       const data = await ArangoDocumentModel.collection.firstExample(example);
-      const object = new ArangoDocumentModel(data, { isNew: false });
+      const object = new this(data, { isNew: false });
       object.revision = data._rev;
       object.key = data._key;
       return object;
