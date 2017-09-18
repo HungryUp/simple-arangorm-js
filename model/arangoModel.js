@@ -71,11 +71,19 @@ module.exports = function arangoModel(schemaHandler, options) {
       }
     }
 
+    static async query(...aql) {
+      return options.db.query(...aql);
+    }
+
     /**
      * Get collection instance of arangoDB
      */
     static get collection() {
       throw new Error('collection must be override');
+    }
+
+    static get collectionName() {
+      return options.name;
     }
 
     /**
