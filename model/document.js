@@ -31,9 +31,7 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
      * Return cursor of entries
      * @returns {Promise.<void>}
      */
-    static async find(example, { offset, limit }) {
-      offset = offset || 0;
-      limit = limit || 100;
+    static async find(example = {}, { offset = 0, limit = 100 } = {}) {
       const query = await ArangoDocumentModel.collection.byExample(example, { skip: offset, limit });
       const array = await query.all();
       return array.map(o => new this(o, { isNew: false }));
@@ -46,7 +44,7 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
      * @returns {Promise.<GenericModel>}
      */
     static async findOne(example) {
-      const data = await ArangoDocumentModel.collection.firstExample(example);
+      const data = await this.collection.firstExample(example);
       const object = new this(data, { isNew: false });
       object.revision = data._rev;
       object.key = data._key;
@@ -65,7 +63,7 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
       if (revision) {
         criteria._rev = revision;
       }
-      return ArangoDocumentModel.findOne(criteria);
+      return this.findOne(criteria);
     }
 
     /**
@@ -100,6 +98,5 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
       return result;
     }
   };
-  ArangoDocumentModel.setup();
   return ArangoDocumentModel;
 };
