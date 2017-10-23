@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/HungryUp/simple-arangorm-js#readme",
   "dependencies": {
+    "aqb": "^2.1.0",
     "joi": "^10.6.0",
     "lodash.merge": "^4.6.0"
   },

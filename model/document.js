@@ -1,4 +1,5 @@
 const genericModel = require('./arangoModel');
+const qb = require('aqb');
 
 const { db } = require('..');
 
