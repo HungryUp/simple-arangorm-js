@@ -97,6 +97,19 @@ module.exports = function arangoDocumentModel(schemaHandler, options) {
       this.revision = result._rev;
       return result;
     }
+
+    static async count(filters = {}) {
+      const COL_NAME = 'col';
+      const COUNTER = 'count';
+      let queryBuilder = qb.for(COL_NAME).in(this.collection.name);
+      if (this.buildCountFilters || this.buildFilters) {
+        queryBuilder = (this.buildCountFilters || this.buildFilters)(queryBuilder, filters);
+      }
+      queryBuilder = queryBuilder.collectWithCountInto(COUNTER).return(COUNTER);
+      const query = await this.query(queryBuilder);
+      const [count] = await query.all();
+      return count;
+    }
   };
   return ArangoDocumentModel;
 };
