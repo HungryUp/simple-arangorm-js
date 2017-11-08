@@ -37,7 +37,14 @@ module.exports = function arangoEdgeModel(schemaHandler, options) {
           return this;
         }
       }
-      await ArangoEdgeModel.collection.save(this._validatedData || {}, from.id, to.id);
+      const result = await ArangoEdgeModel.collection.save(this._validatedData || {}, from.id, to.id);
+      this.key = result._key;
+      this.revision = result._rev;
+      return this;
+    }
+
+    async unlink() {
+      await ArangoEdgeModel.collection.remove(this._documentHandle);
       return this;
     }
 
