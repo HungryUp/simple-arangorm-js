@@ -172,4 +172,8 @@ module.exports = class Abstract {
     merge(this._data, data);
     return this;
   }
+
+  async remove() {
+    return this.collection.remove(this._discriminators);
+  }
 };
