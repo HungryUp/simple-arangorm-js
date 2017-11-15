@@ -1,5 +1,6 @@
 const Joi = require('joi');
 
+const merge = require('lodash.merge');
 const pick = require('lodash.pick');
 const clone = require('lodash.clone');
 const dashify = require('dashify');
@@ -164,6 +165,11 @@ module.exports = class Abstract {
 
   withKey(key) {
     this._data._key = key;
+    return this;
+  }
+
+  with(data) {
+    merge(this._data, data);
     return this;
   }
 };
