@@ -7,6 +7,7 @@ const dashify = require('dashify');
 const { Database } = require('arangojs');
 
 const dbSymbol = Symbol('db');
+const pluginsSymbol = Symbol('plugins')
 
 module.exports = class Abstract {
   constructor(data = {}) {
@@ -21,22 +22,36 @@ module.exports = class Abstract {
     return clone(this);
   }
 
-  static get schema() {
-    return this.validationLib.object();
+  static get Joi() {
+    return Joi;
   }
 
-  static get validationLib() {
-    return Joi;
+  static get schema() {
+    const schemas = this.plugins.map(o => o.schema);
+    return merge({}, ...schemas);
+  }
+
+  static get schemaObject() {
+    return Joi.object().keys(this.schema);
   }
 
   static get new() {
     return new this();
   }
 
+  static plug(...plugins) {
+    this[pluginsSymbol] = this.plugins.concat(...plugins);
+    return this;
+  }
+
+  static get plugins() {
+    return [].concat(this[pluginsSymbol] || []);
+  }
+
   get proxy() {
     return new Proxy(this, {
-      get: (target, key) => key in target._validatedData?
-          target._validatedData[key] : target[key],
+      get: (target, key) => key in target._validatedContent?
+          target._validatedContent[key] : target[key],
       set: function (target, key, value) {
         if (target[key]) {
           target[key] = value;
@@ -141,8 +156,7 @@ module.exports = class Abstract {
   }
 
   get _validatedData() {
-    const { error, value } = this.constructor.validationLib
-      .validate(this._data, this.constructor.schema);
+    const { error, value } = Joi.validate(this._data, this.constructor.schema);
     if (error) {
       throw error;
     }
@@ -150,8 +164,7 @@ module.exports = class Abstract {
   }
 
   get _validatedContent() {
-    const { error, value } = this.constructor.validationLib
-      .validate(this._data, this.constructor.schema, { stripUnknown: true });
+    const { error, value } = Joi.validate(this._data, this.constructor.schema, { stripUnknown: true });
     if (error) {
       throw error;
     }
@@ -168,7 +181,11 @@ module.exports = class Abstract {
     return this;
   }
 
-  with(data) {
+  with(...params) {
+    let [data, key] = params.reverse();
+    if (key) {
+      data = {[key]: data};
+    }
     merge(this._data, data);
     return this;
   }
