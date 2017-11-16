@@ -27,4 +27,17 @@ module.exports = class AbstractDocument extends AbstractModel {
     }
     return this.create({ returnNew, silent });
   }
+
+  static async findById(id, revision) {
+    const criteria = { _key: id };
+    if (revision) {
+      criteria._rev = revision;
+    }
+    return this.findOne(criteria);
+  }
+
+  static async findOne(example) {
+    const data = await this.collection.firstExample(example);
+    return this.new.with(data);
+  }
 };
