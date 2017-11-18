@@ -24,14 +24,14 @@
     "aqb": "^2.1.0",
     "arangojs": "^5.7.1",
     "dashify": "^0.2.2",
-    "joi": "^10.6.0",
+    "joi": "^13.0.2",
     "lodash.clone": "^4.5.0",
     "lodash.merge": "^4.6.0",
     "lodash.pick": "^4.4.0"
   },
   "devDependencies": {
-    "eslint": "^4.6.1",
-    "eslint-config-airbnb-base": "^12.0.0",
-    "eslint-plugin-import": "^2.7.0"
+    "eslint": "^4.11.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
   }
 }
