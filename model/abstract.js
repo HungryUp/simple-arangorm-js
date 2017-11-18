@@ -52,8 +52,15 @@ module.exports = class Abstract {
 
   get proxy() {
     return new Proxy(this, {
-      get: (target, key) => key in target._validatedContent?
-          target._validatedContent[key] : target[key],
+      get: (target, key) => {
+        if (key in target._validatedContent) {
+          return target._validatedContent[key]
+        }
+        if (typeof target[key] === 'function') {
+          return target[key].bind(this);
+        }
+        return target[key];
+      },
       set: function (target, key, value) {
         if (target[key]) {
           target[key] = value;
