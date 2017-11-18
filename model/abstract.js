@@ -7,7 +7,9 @@ const dashify = require('dashify');
 const { Database } = require('arangojs');
 
 const dbSymbol = Symbol('db');
-const pluginsSymbol = Symbol('plugins')
+const pluginsSymbol = Symbol('plugins');
+const registrySymbol = Symbol('registry');
+
 
 module.exports = class Abstract {
   constructor(data = {}) {
@@ -114,6 +116,20 @@ module.exports = class Abstract {
     return this.db.query(...aql);
   }
 
+  static register(...params) {
+    let [Model, name] = params.reverse();
+    if (!name) {
+      name = Model.name;
+    }
+    this[registrySymbol] = this[registrySymbol] || new Map();
+    this[registrySymbol].set(name, Model);
+    return this;
+  }
+
+  static get registry() {
+    return this[registrySymbol];
+  }
+
   /**
    * Set revision
    *
@@ -156,7 +172,11 @@ module.exports = class Abstract {
   }
 
   get _validatedData() {
-    const { error, value } = Joi.validate(this._data, this.constructor.schema);
+    const { error, value } = Joi.validate(
+      this._data,
+      this.constructor.schemaObject.keys({_key: Joi.any()}),
+      { stripUnknown: true }
+    );
     if (error) {
       throw error;
     }
@@ -164,7 +184,7 @@ module.exports = class Abstract {
   }
 
   get _validatedContent() {
-    const { error, value } = Joi.validate(this._data, this.constructor.schema, { stripUnknown: true });
+    const { error, value } = Joi.validate(this._data, this.constructor.schemaObject, { stripUnknown: true });
     if (error) {
       throw error;
     }
