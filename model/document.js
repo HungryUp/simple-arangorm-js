@@ -39,7 +39,7 @@ module.exports = class AbstractDocument extends AbstractModel {
 
   static async findOne(example) {
     const data = await this.collection.firstExample(example);
-    return this.new.with(data);
+    return this.new.replace(data);
   }
 
   /**
@@ -49,7 +49,7 @@ module.exports = class AbstractDocument extends AbstractModel {
   static async find(example = {}, { offset = 0, limit = 100 } = {}) {
     const query = await this.collection.byExample(example, { skip: offset, limit });
     const array = await query.all();
-    return array.map(o => this.new.with(o));
+    return array.map(o => this.new.replace(o));
   }
 
   static async count(filters = {}) {
