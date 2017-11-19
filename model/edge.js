@@ -28,8 +28,10 @@ module.exports = class AbstractEdge extends AbstractModel {
 
   async create() {
     const result = await this.collection.save(this._validatedData);
-    return this;
+    return this
+      .with(result);
   }
+
   get _validatedData() {
     const data = super._validatedData;
     if (!this[toSymb] || !this[fromSymb]) {
@@ -42,5 +44,24 @@ module.exports = class AbstractEdge extends AbstractModel {
     data._from = this[fromSymb].id;
     data._to = this[toSymb].id;
     return data;
+  }
+
+  static async buildDeepTree(origin) {
+    const traversal = await this.collection.traversal(origin.id, {
+      direction: 'outbound',
+      startVertex: origin.id,
+      filter: `if (!vertex._id.startsWith("${origin.constructor.collectionName}/")) {
+        return "exclude";
+        }
+        return;`,
+      edgeCollection: this.collectionName,
+      maxDepth: 10,
+    });
+    return traversal.visited.vertices.map(v => origin.constructor.new.replace(v));
+  }
+
+  async remove() {
+    await this.collection.remove(this._discriminators);
+    return this;
   }
 };
