@@ -181,7 +181,7 @@ module.exports = class Abstract {
   get _validatedData() {
     const { error, value } = Joi.validate(
       this._data,
-      this.constructor.schemaObject.keys({_key: Joi.any()}),
+      this.constructor.schemaObject.keys(this.constructor.schema ? {_key: Joi.any()} : null),
       { stripUnknown: true }
     );
     if (error) {
