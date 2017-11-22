@@ -137,6 +137,10 @@ module.exports = class Abstract {
     return this[registrySymbol];
   }
 
+  static lookupRegistry(...items) {
+    return items.map(i => this.registry.get(i));
+  }
+
   /**
    * Set revision
    *
