@@ -4,9 +4,6 @@ const fromSymb = Symbol('from');
 const toSymb = Symbol('to');
 
 module.exports = class AbstractEdge extends AbstractModel {
-  constructor(...params) {
-    super(...params);
-  }
   static get collection() {
     return this.db.edgeCollection(this.collectionName);
   }

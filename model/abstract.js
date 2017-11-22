@@ -54,20 +54,20 @@ module.exports = class Abstract {
     return new Proxy(this, {
       get: (target, key) => {
         if (key in target._validatedContent) {
-          return target._validatedContent[key]
+          return target._validatedContent[key];
         }
         if (typeof target[key] === 'function') {
           return target[key].bind(this);
         }
         return target[key];
       },
-      set: function (target, key, value) {
+      set(target, key, value) {
         if (target[key]) {
           target[key] = value;
         } else {
           target._data[key] = value;
         }
-      }
+      },
     });
   }
 
@@ -110,11 +110,11 @@ module.exports = class Abstract {
 
   static set db(db) {
     if (typeof db === 'object') {
-      if(!(db instanceof Database)) {
+      if (!(db instanceof Database)) {
         db = new Database(db);
       }
     } else {
-        db = new Database();
+      db = new Database();
     }
     this[dbSymbol] = db;
   }
@@ -124,9 +124,9 @@ module.exports = class Abstract {
   }
 
   static register(...params) {
-    let [Model, name] = params.reverse();
+    let [Model, name] = params.reverse(); // eslint-disable-line prefer-const
     if (!name) {
-      name = Model.name;
+      [name] = Model;
     }
     this[registrySymbol] = this[registrySymbol] || new Map();
     this[registrySymbol].set(name, Model);
@@ -185,8 +185,8 @@ module.exports = class Abstract {
   get _validatedData() {
     const { error, value } = Joi.validate(
       this._data,
-      this.constructor.schemaObject.keys(this.constructor.schema ? {_key: Joi.any()} : null),
-      { stripUnknown: true }
+      this.constructor.schemaObject.keys(this.constructor.schema ? { _key: Joi.any() } : null),
+      { stripUnknown: true },
     );
     if (error) {
       throw error;
@@ -213,9 +213,9 @@ module.exports = class Abstract {
   }
 
   with(...params) {
-    let [data, key] = params.reverse();
+    let [data, key] = params.reverse(); // eslint-disable-line prefer-const
     if (key) {
-      data = {[key]: data};
+      data = { [key]: data };
     }
     merge(this._data, data);
     return this;
