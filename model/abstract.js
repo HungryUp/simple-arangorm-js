@@ -126,7 +126,7 @@ module.exports = class Abstract {
   static register(...params) {
     let [Model, name] = params.reverse(); // eslint-disable-line prefer-const
     if (!name) {
-      [name] = Model;
+      name = Model.name; // eslint-disable-line prefer-destructuring
     }
     this[registrySymbol] = this[registrySymbol] || new Map();
     this[registrySymbol].set(name, Model);
